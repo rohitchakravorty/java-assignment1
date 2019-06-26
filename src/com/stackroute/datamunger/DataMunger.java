@@ -35,10 +35,12 @@ public class DataMunger {
 
 	public String[] getSplitStrings(String queryString) {
 
-		return null;
+	return queryString.toLowerCase().split(" ");
+
 	}
 
 	/*
+
 	 * Extract the name of the file from the query. File name can be found after a
 	 * space after "from" clause. Note: ----- CSV file can contain a field that
 	 * contains from as a part of the column name. For eg: from_date,from_hrs etc.
@@ -48,7 +50,11 @@ public class DataMunger {
 
 	public String getFileName(String queryString) {
 
-		return null;
+		int indexStart=queryString.indexOf("from")+5;
+		int indexEnd=queryString.indexOf("csv")+3;
+		return queryString.substring(indexStart,indexEnd);
+
+
 	}
 
 	/*
@@ -62,8 +68,10 @@ public class DataMunger {
 	 */
 	
 	public String getBaseQuery(String queryString) {
+		int indexEnd=queryString.indexOf("csv")+3;
+		return queryString.substring(0,indexEnd);
 
-		return null;
+
 	}
 
 	/*
@@ -79,8 +87,9 @@ public class DataMunger {
 	 */
 	
 	public String[] getFields(String queryString) {
-
-		return null;
+		int indexStart=7;
+		int indexEnd=queryString.indexOf("from")-1;
+		return queryString.substring(indexStart,indexEnd).split(",");
 	}
 
 	/*
@@ -94,8 +103,27 @@ public class DataMunger {
 	 */
 	
 	public String getConditionsPartQuery(String queryString) {
+		int indexStart=queryString.indexOf("where")+6;
+		if(!queryString.contains("where"))
+		{
+			return null;
+		}
+		if(queryString.contains("group"))
+		{
+			int indexEnd=queryString.indexOf("group")-1;
+			return queryString.toLowerCase().substring(indexStart,indexEnd);
 
-		return null;
+
+		}
+		if(queryString.contains("order"))
+		{
+			int indexEnd=queryString.indexOf("order")-1;
+			return queryString.toLowerCase().substring(indexStart,indexEnd);
+
+
+		}
+
+		return queryString.toLowerCase().substring(indexStart);
 	}
 
 	/*
@@ -115,7 +143,26 @@ public class DataMunger {
 
 	public String[] getConditions(String queryString) {
 
-		return null;
+		if(!queryString.contains("where"))
+			return null;
+
+		queryString=queryString.replace(" and ",",");
+		queryString=queryString.replace(" or ",",");
+		int indexEnd = 0;
+		int indexStart=queryString.indexOf("where")+6;
+		if(queryString.contains("group")) {
+			indexEnd=queryString.indexOf("group")-1;
+		}
+		else if(queryString.contains("order")) {
+			 indexEnd=queryString.indexOf("order")-1;
+		}
+
+
+		if(indexEnd==0)
+			indexEnd=queryString.length();
+		return queryString.substring(indexStart,indexEnd).toLowerCase().split(",");
+
+
 	}
 
 	/*
@@ -130,9 +177,34 @@ public class DataMunger {
 	 */
 
 	public String[] getLogicalOperators(String queryString) {
+		String[] opArr=queryString.split(" ");
+		int i=0;
+		String[] result=new String[opArr.length];
+		for(String str:opArr)
+		{
+			if(str.equals("and"))
+			{
+				result[i]="and";
+				i++;
+			}
+			if(str.equals("or"))
+			{
+				result[i]="or";
+				i++;
+			}
+		}
+		String[] resultArr=new String[i];
+		for(int j=0;j<i;j++)
+		{
+			resultArr[j]=result[j];
+		}
+		if(i==0)
+		{
+			return null;
 
-		return null;
-	}
+		}
+		return resultArr;
+	 }
 
 	/*
 	 * This method extracts the order by fields from the query string. Note: 
@@ -143,8 +215,13 @@ public class DataMunger {
 	 */
 
 	public String[] getOrderByFields(String queryString) {
+		if(!queryString.contains("order"))
+		{
+			return null;
+		}
 
-		return null;
+		int indexStart=queryString.indexOf("order by")+9;
+		return queryString.substring(indexStart).toLowerCase().split(" ");
 	}
 
 	/*
@@ -158,7 +235,13 @@ public class DataMunger {
 
 	public String[] getGroupByFields(String queryString) {
 
-		return null;
+		if(!queryString.contains("group"))
+		{
+			return null;
+		}
+
+		int indexStart=queryString.indexOf("group by")+9;
+		return queryString.substring(indexStart).toLowerCase().split(" ");
 	}
 
 	/*
@@ -172,8 +255,51 @@ public class DataMunger {
 	 */
 
 	public String[] getAggregateFunctions(String queryString) {
+		queryString=queryString.replace(',',' ');
+		String[] opArr=queryString.split(" ");
+		int i=0;
+		String[] result=new String[opArr.length];
+		for(String str:opArr)
+		{
+			if(str.contains("count"))
+			{
+				result[i]=str;
+				i++;
+			}
+			if(str.contains("sum"))
+			{
+				result[i]=str;
+				i++;
+			}
+			if(str.contains("max"))
+			{
+				result[i]=str;
+				i++;
+			}
+			if(str.contains("min"))
+			{
+				result[i]=str;
+				i++;
+			}
+			if(str.contains("avg"))
+			{
+				result[i]=str;
+				i++;
+			}
+		}
+		String[] resultArr=new String[i];
+		for(int j=0;j<i;j++)
+		{
+			resultArr[j]=result[j];
+		}
+		if(i==0)
+		{
+			return null;
 
-		return null;
+		}
+		return resultArr;
+
+
 	}
 
 }
